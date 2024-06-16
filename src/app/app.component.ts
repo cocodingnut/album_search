@@ -1,34 +1,57 @@
-
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
+import { UserService } from './shared/services/user.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  usernameForm: FormGroup;
+  searchForm: FormGroup;
+  results: any[] = [];
+  filteredResults: any[] = [];
+  displayFilteredResults: boolean = false;
 
-  constructor(private fb: FormBuilder) {
-    this.usernameForm = this.fb.group({
-      username: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9-]+$/)]]
+  constructor(private fb: FormBuilder, private userService: UserService) {
+    this.searchForm = this.fb.group({
+      username: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9-]+$/)]],
+      filter: ['']
     });
   }
 
   get usernameControl() {
-    return this.usernameForm.get('username');
+    return this.searchForm.get('username');
+  }
+
+  get filterControl() {
+    return this.searchForm.get('filter');
   }
 
   onSubmit() {
-    if (this.usernameForm.valid) {
-      const username = this.usernameForm.value.username;
-      // Handle the valid username here
-      console.log('Valid username:', username);
+    if (this.searchForm.valid) {
+      const username = this.searchForm.value.username;
+      this.userService.searchUsers(username).subscribe(results => {
+        this.results = results.items;
+      });
     } else {
-      // Mark all controls as touched to trigger validation messages
       console.error('Invalid username');
-      this.usernameForm.markAllAsTouched();
+      // this.searchForm.markAllAsTouched();
     }
   }
+  onFilter() {
+    this.displayFilteredResults = true;
+    const filterValue = this.searchForm.value.filter.toLowerCase();
+    // this.filteredResults = this.results.filter(user =>
+    //   Object.values(user).some(val => typeof val === 'string' && val.toLowerCase().includes(filterValue))
+    // );
+    this.filteredResults = this.results.filter(user =>
+      ['id', 'login', 'html_url'].some(key =>
+        user[key].toString().toLowerCase().includes(filterValue)
+      )
+    );
+
+    console.log(this.filteredResults)
+  }
+
+
 }

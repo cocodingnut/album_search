@@ -1,14 +1,15 @@
 <div class="container">
   <h1>Username Search</h1>
-  <form [formGroup]="usernameForm" (ngSubmit)="onSubmit()">
+  <form [formGroup]="searchForm" (ngSubmit)="onSubmit()">
     <div>
       <input type="text" formControlName="username" placeholder="Enter username" />
       <button type="submit">Search</button>
     </div>
-    <!-- <div *ngIf="usernameControl.invalid && (usernameControl.dirty || usernameControl.touched)">
-      <div *ngIf="usernameControl.errors?.required">Username is required.</div>
-      <div *ngIf="usernameControl.errors?.pattern">Username can only contain alphanumeric characters or hyphens (-).
-      </div>
-    </div> -->
+    <div>
+      <input type="text" formControlName="filter" placeholder="Enter filter text" />
+      <button type="button" (click)="onFilter()">Filter</button>
+    </div>
+
   </form>
+  <app-search-results [results]="displayFilteredResults ? filteredResults : results"></app-search-results>
 </div>
