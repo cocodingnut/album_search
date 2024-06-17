@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { UserService } from './shared/services/user.service';
+import { debounceTime, distinctUntilChanged, Subject, switchMap, takeUntil, timer } from 'rxjs';
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -9,40 +11,29 @@ import { UserService } from './shared/services/user.service';
 export class AppComponent {
   searchForm: FormGroup;
   results: any[] = [];
-  filteredResults: any[] = [];
-  displayFilteredResults: boolean = false;
+  private stopSearch$ = new Subject<void>();
+
+  @ViewChild('artistNameInput') artistNameInput: ElementRef | undefined;
+  isSearching: boolean = false;
 
   constructor(private fb: FormBuilder, private userService: UserService) {
     this.searchForm = this.fb.group({
-      username: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9-]+$/)]],
-      filter: ['']
+      artistName: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9-]+$/)]]
     });
   }
 
-  onSubmit() {
-    if (this.searchForm.valid) {
-      const username = this.searchForm.value.username;
-      this.userService.searchUsers(username).subscribe(results => {
-        this.results = results.items;
-      });
-    } else {
-      console.error('Invalid username');
+  onKeyUp(event: KeyboardEvent) {
+    if (event.key === 'Enter') {
+      const artistName = this.searchForm.value.artistName;
+      this.userService.searchArtists(artistName)
+        .subscribe(
+          (response: any) => {
+            this.results = response.results;
+          },
+          (error) => {
+            console.error('Error fetching albums:', error);
+          }
+        );
     }
   }
-  onFilter() {
-    this.displayFilteredResults = true;
-    const filterValue = this.searchForm.value.filter.toLowerCase();
-    // this.filteredResults = this.results.filter(user =>
-    //   Object.values(user).some(val => typeof val === 'string' && val.toLowerCase().includes(filterValue))
-    // );
-    this.filteredResults = this.results.filter(user =>
-      ['id', 'login', 'html_url'].some(key =>
-        user[key].toString().toLowerCase().includes(filterValue)
-      )
-    );
-
-    console.log(this.filteredResults)
-  }
-
-
 }

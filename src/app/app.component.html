@@ -1,15 +1,9 @@
 <div class="container">
-  <h1>Username Search</h1>
-  <form [formGroup]="searchForm" (ngSubmit)="onSubmit()">
+  <h1>Album Search</h1>
+  <form [formGroup]="searchForm">
     <div>
-      <input type="text" formControlName="username" placeholder="Enter username" />
-      <button type="submit">Search</button>
+      <input type="text" formControlName="artistName" #artistNameInput (keyup)="onKeyUp($event)">
     </div>
-    <div>
-      <input type="text" formControlName="filter" placeholder="Enter filter text" />
-      <button type="button" (click)="onFilter()">Filter</button>
-    </div>
-
   </form>
-  <app-search-results [results]="displayFilteredResults ? filteredResults : results"></app-search-results>
+  <app-search-results [results]="results"></app-search-results>
 </div>
