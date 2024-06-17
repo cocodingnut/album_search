@@ -19,14 +19,6 @@ export class AppComponent {
     });
   }
 
-  get usernameControl() {
-    return this.searchForm.get('username');
-  }
-
-  get filterControl() {
-    return this.searchForm.get('filter');
-  }
-
   onSubmit() {
     if (this.searchForm.valid) {
       const username = this.searchForm.value.username;
@@ -35,7 +27,6 @@ export class AppComponent {
       });
     } else {
       console.error('Invalid username');
-      // this.searchForm.markAllAsTouched();
     }
   }
   onFilter() {

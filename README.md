@@ -6,22 +6,18 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The application will automatically reload if you change any of the source files.
 
-## Code scaffolding
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Task
+The app should display user profiles in GitHub:
 
-## Build
+1. When you enter the website, there should be an input and a search button.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+2. The input field will expect GitHub usernames. A GitHub username may only contain alphanumeric characters or hyphens (-).
 
-## Running unit tests
+3. When the search button is clicked, validate the input. If it is valid, use the following [API](https://api.github.com/search/users?q=usernameParam) to query GitHub usernames that contain the text received in the input.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+4. Display the search results on a search results page. Display the results in a simple table.
 
-## Running end-to-end tests
+    The columns that are required are: User Id (id), Username (login), Profile URL Link (url)
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+5. Add a filter input that checks if any of the fields contain the typed text and filters the table accordingly.
