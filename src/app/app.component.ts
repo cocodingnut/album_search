@@ -1,7 +1,8 @@
-import { Component, ViewChild, ElementRef } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { UserService } from './shared/services/user.service';
-import { debounceTime, distinctUntilChanged, Subject, switchMap, takeUntil, timer } from 'rxjs';
+import { Component } from '@angular/core';
+import { FormControl } from '@angular/forms';
+
+import { Subject, tap, throttleTime } from 'rxjs';
+import { AlbumService } from './album.service';
 
 @Component({
   selector: 'app-root',
@@ -9,31 +10,51 @@ import { debounceTime, distinctUntilChanged, Subject, switchMap, takeUntil, time
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  searchForm: FormGroup;
+  count: number = 0;
   results: any[] = [];
-  private stopSearch$ = new Subject<void>();
+  artistName = new FormControl('');
+  countdown = 0;
+  searchName: string = '';
 
-  @ViewChild('artistNameInput') artistNameInput: ElementRef | undefined;
-  isSearching: boolean = false;
+  private searchSubject = new Subject<string>();
 
-  constructor(private fb: FormBuilder, private userService: UserService) {
-    this.searchForm = this.fb.group({
-      artistName: ['', [Validators.required, Validators.pattern(/^[a-zA-Z0-9-]+$/)]]
+  constructor(private albumService: AlbumService) {
+    this.searchSubject.pipe(
+      throttleTime(5000) // 设置5秒的节流时间
+    ).subscribe(artistName => {
+      this.countdown = 5;
+      const countdownInterval = setInterval(() => {
+        this.countdown--;
+        if (this.countdown <= 0) {
+          clearInterval(countdownInterval);
+        }
+      }, 1000);
+      this.searchName = artistName;
+      this.search(this.searchName);
+
     });
   }
 
-  onKeyUp(event: KeyboardEvent) {
-    if (event.key === 'Enter') {
-      const artistName = this.searchForm.value.artistName;
-      this.userService.searchArtists(artistName)
-        .subscribe(
-          (response: any) => {
+  private search(artistName: string) {
+    this.albumService.searchArtists(artistName)
+      .pipe(
+        tap({
+          next: (response: any) => {
+            this.count = response.resultCount;
             this.results = response.results;
           },
-          (error) => {
+          error: (error) => {
             console.error('Error fetching albums:', error);
           }
-        );
+        })
+      ).subscribe();
+  }
+
+
+  onKeyUp(event: KeyboardEvent) {
+    const artistName = this.artistName.value;
+    if (event.key === 'Enter' && artistName !== null) {
+      this.searchSubject.next(artistName);
     }
   }
 }

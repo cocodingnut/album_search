@@ -1,9 +1,19 @@
-<div class="container">
-  <h1>Album Search</h1>
-  <form [formGroup]="searchForm">
-    <div>
-      <input type="text" formControlName="artistName" #artistNameInput (keyup)="onKeyUp($event)">
-    </div>
-  </form>
-  <app-search-results [results]="results"></app-search-results>
+<div class="search-container">
+  <input type="text" [formControl]="artistName" (keyup)="onKeyUp($event)"
+    placeholder="Search for albums or artists..." />
+  <div *ngIf="countdown > 0" class="countdown">
+    Searching in {{ countdown }} seconds...
+  </div>
+</div>
+
+<div class="results-container" *ngIf="results.length > 0">
+  <h1> </h1>
+  <h2> </h2>
+  <h1> {{count}} results from {{searchName}} </h1>
+  <ul class="album-list">
+    <li *ngFor="let album of results" class="album-item">
+      <img [src]="album.artworkUrl100" [alt]="album.collectionName" class="album-image">
+      <h3 class="album-name">{{ album.collectionName }}</h3>
+    </li>
+  </ul>
 </div>
